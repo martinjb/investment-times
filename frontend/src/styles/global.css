@@ -1,0 +1,69 @@
+/* global.css
+   Aesthetic direction: editorial finance press meets a Bloomberg-style terminal.
+   - Cream paper background like the FT's iconic salmon-pink, but a touch warmer.
+   - Fraunces (a high-contrast serif with optical sizing) for headlines.
+   - JetBrains Mono for prices and tabular data.
+   - Inter for small UI text and labels.
+   - Dominant warm cream + black ink, sharp green/red accents only where data demands it.
+*/
+
+:root {
+  /* Palette */
+  --paper:        #f4ece1;
+  --paper-deep:   #ebe1d2;
+  --ink:          #161514;
+  --ink-soft:     #4a443c;
+  --rule:         #1615141a;
+  --rule-strong:  #16151440;
+  --accent:       #b8351f;   /* a deep brick red used very sparingly */
+  --gain:         #1f6b3a;
+  --loss:         #b8351f;
+  --hover:        #00000008;
+
+  /* Typography */
+  --serif:  'Fraunces', 'Times New Roman', serif;
+  --mono:   'JetBrains Mono', 'Courier New', monospace;
+  --sans:   'Inter', -apple-system, system-ui, sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+
+/* Subtle paper grain */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1000;
+  background-image: radial-gradient(rgba(0,0,0,0.025) 1px, transparent 1px);
+  background-size: 3px 3px;
+  opacity: 0.5;
+  mix-blend-mode: multiply;
+}
+
+/* Thin scrollbar that doesn't break the aesthetic */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: var(--paper); }
+::-webkit-scrollbar-thumb { background: var(--rule-strong); border-radius: 4px; }
+
+a { color: inherit; text-decoration: none; }
+button { font-family: inherit; cursor: pointer; }
+
+.gain { color: var(--gain); }
+.loss { color: var(--loss); }
+
+/* Keyframe used by several components for a soft fade-in on load */
+@keyframes rise {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}

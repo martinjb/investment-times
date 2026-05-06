@@ -1,0 +1,54 @@
+<section class="news-section">
+  <div class="block-header">
+    <span class="strip-num">06</span>
+    <span class="strip-text">HEADLINES</span>
+  </div>
+
+  <div class="news-grid">
+    <!-- FT column -->
+    <div class="news-col">
+      <div class="col-masthead">
+        <span class="masthead-name">Financial Times</span>
+        <span class="masthead-rule"></span>
+      </div>
+      <div class="news-list" *ngIf="bySource('Financial Times').length > 0; else ftEmpty">
+        <a *ngFor="let n of bySource('Financial Times'); let i = index"
+           [href]="n.url" target="_blank" rel="noopener"
+           class="news-item"
+           [style.animation-delay.ms]="i * 60">
+          <div class="news-title">{{ n.title }}</div>
+          <div class="news-meta" *ngIf="n.publishedAt">
+            {{ n.publishedAt | date:'MMM d &bull; h:mm a' }}
+          </div>
+        </a>
+      </div>
+      <ng-template #ftEmpty>
+        <div class="empty">No headlines retrieved.</div>
+      </ng-template>
+    </div>
+
+    <!-- AP column -->
+    <div class="news-col">
+      <div class="col-masthead">
+        <span class="masthead-name">AP News</span>
+        <span class="masthead-rule"></span>
+      </div>
+      <div class="news-list" *ngIf="bySource('AP News').length > 0; else apEmpty">
+        <a *ngFor="let n of bySource('AP News'); let i = index"
+           [href]="n.url" target="_blank" rel="noopener"
+           class="news-item"
+           [style.animation-delay.ms]="i * 60">
+          <div class="news-title">{{ n.title }}</div>
+          <div class="news-meta" *ngIf="n.publishedAt">
+            {{ n.publishedAt | date:'MMM d &bull; h:mm a' }}
+          </div>
+        </a>
+      </div>
+      <ng-template #apEmpty>
+        <div class="empty">No headlines retrieved.</div>
+      </ng-template>
+    </div>
+  </div>
+
+  <div class="loading" *ngIf="loading">Loading headlines&hellip;</div>
+</section>

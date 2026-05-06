@@ -1,0 +1,33 @@
+// components/news/news.component.ts
+// Displays the latest headlines from FT and AP. Each headline links out.
+
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { ApiService } from '../../services/api.service';
+import { NewsItem } from '../../models/models';
+
+@Component({
+  selector: 'app-news',
+  standalone: true,
+  imports: [CommonModule],
+  templateUrl: './news.component.html',
+  styleUrls: ['./news.component.css']
+})
+export class NewsComponent implements OnInit {
+  news: NewsItem[] = [];
+  loading = true;
+
+  constructor(private api: ApiService) {}
+
+  ngOnInit() {
+    this.api.getNews().subscribe({
+      next: data => { this.news = data; this.loading = false; },
+      error: () => this.loading = false
+    });
+  }
+
+  // Group headlines by source for the two-column layout.
+  bySource(source: string): NewsItem[] {
+    return this.news.filter(n => n.source === source);
+  }
+}

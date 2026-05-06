@@ -1,0 +1,31 @@
+<div class="page">
+
+  <!-- Masthead: editorial-style header that anchors the brand. -->
+  <header class="masthead">
+    <div class="masthead-top">
+      <div class="masthead-meta">
+        <span class="meta-item">VOL. I &middot; NO. 1</span>
+        <span class="meta-item">{{ today | date:'EEEE, MMMM d, y' }}</span>
+        <span class="meta-item">PERSONAL EDITION</span>
+      </div>
+    </div>
+    <h1 class="masthead-title">
+      <span class="title-the">The</span>
+      Investment&nbsp;Tracker
+    </h1>
+    <div class="masthead-tagline">A daily ledger of markets, holdings &amp; headlines</div>
+  </header>
+
+  <main class="content">
+    <app-dashboard></app-dashboard>
+    <app-transactions></app-transactions>
+    <app-portfolio></app-portfolio>
+    <app-news></app-news>
+  </main>
+
+  <footer class="foot">
+    <span>Built with .NET 8 &middot; Angular 17 &middot; Entity Framework Core</span>
+    <span>Prices via CoinGecko &amp; Yahoo Finance &middot; Headlines via FT &amp; AP RSS</span>
+  </footer>
+
+</div>

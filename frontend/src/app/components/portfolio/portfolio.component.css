@@ -1,0 +1,101 @@
+.portfolio-section { animation: rise 0.6s ease backwards; }
+
+.block-header {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  border-bottom: 1px solid var(--ink);
+  padding-bottom: 12px;
+  margin-bottom: 24px;
+}
+.strip-num {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--ink-soft);
+}
+.strip-text {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+}
+
+.holdings-table {
+  border: 1px solid var(--rule-strong);
+  background: var(--paper);
+}
+
+.holding-row {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1fr 1fr 1.2fr 1.4fr;
+  gap: 24px;
+  padding: 18px 28px;
+  align-items: center;
+  border-bottom: 1px solid var(--rule);
+  animation: rise 0.5s ease backwards;
+}
+.holding-row:last-child { border-bottom: none; }
+.holding-row:not(.header):hover { background: var(--paper-deep); }
+
+.holding-row.header {
+  font-family: var(--sans);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  border-bottom: 1px solid var(--ink);
+  background: var(--paper);
+}
+
+.cell-asset { display: flex; align-items: baseline; gap: 10px; }
+
+.asset-symbol {
+  font-family: var(--serif);
+  font-size: 22px;
+  font-weight: 500;
+  font-variation-settings: "opsz" 144;
+  letter-spacing: -0.01em;
+}
+
+.asset-tag {
+  font-family: var(--sans);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  color: var(--ink-soft);
+  border: 1px solid var(--rule-strong);
+  padding: 2px 6px;
+}
+
+.cell-num {
+  font-family: var(--mono);
+  font-size: 14px;
+  text-align: right;
+}
+.cell-num.strong { font-weight: 700; font-size: 16px; }
+
+.cell-pl { text-align: right; font-family: var(--mono); }
+.pl-amount { font-size: 15px; font-weight: 700; }
+.pl-pct    { font-size: 11px; opacity: 0.8; margin-top: 2px; }
+
+.empty, .loading {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--ink-soft);
+  padding: 48px 0;
+  text-align: center;
+  border: 1px dashed var(--rule-strong);
+}
+
+@media (max-width: 900px) {
+  .holding-row {
+    grid-template-columns: 1.5fr 1fr 1.2fr;
+    gap: 12px;
+    padding: 14px 16px;
+  }
+  .holding-row > div:nth-child(2),
+  .holding-row > div:nth-child(3),
+  .holding-row > div:nth-child(4) { display: none; }
+}

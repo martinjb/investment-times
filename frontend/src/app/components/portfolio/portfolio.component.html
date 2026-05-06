@@ -1,0 +1,43 @@
+<section class="portfolio-section">
+  <div class="block-header">
+    <span class="strip-num">05</span>
+    <span class="strip-text">HOLDINGS</span>
+  </div>
+
+  <div class="holdings-table" *ngIf="holdings.length > 0">
+    <div class="holding-row header">
+      <div>Asset</div>
+      <div>Quantity</div>
+      <div>Avg Cost</div>
+      <div>Current Price</div>
+      <div>Market Value</div>
+      <div>Unrealized P/L</div>
+    </div>
+
+    <div class="holding-row" *ngFor="let h of holdings; let i = index"
+         [style.animation-delay.ms]="i * 60">
+      <div class="cell-asset">
+        <span class="asset-symbol">{{ h.symbol | uppercase }}</span>
+        <span class="asset-tag">{{ h.assetType === AssetType.Stock ? 'STOCK' : 'CRYPTO' }}</span>
+      </div>
+      <div class="cell-num">{{ h.quantity | number:'1.0-6' }}</div>
+      <div class="cell-num">${{ h.averageCost | number:'1.2-2' }}</div>
+      <div class="cell-num">${{ h.currentPrice | number:'1.2-2' }}</div>
+      <div class="cell-num strong">${{ h.marketValue | number:'1.2-2' }}</div>
+      <div class="cell-pl" [class.gain]="h.unrealizedGain >= 0" [class.loss]="h.unrealizedGain < 0">
+        <div class="pl-amount">
+          {{ h.unrealizedGain >= 0 ? '+' : '' }}${{ h.unrealizedGain | number:'1.2-2' }}
+        </div>
+        <div class="pl-pct">
+          {{ h.unrealizedGainPercent >= 0 ? '+' : '' }}{{ h.unrealizedGainPercent | number:'1.2-2' }}%
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="empty" *ngIf="!loading && holdings.length === 0">
+    No holdings yet. Record a buy to see it appear here.
+  </div>
+
+  <div class="loading" *ngIf="loading">Loading holdings&hellip;</div>
+</section>

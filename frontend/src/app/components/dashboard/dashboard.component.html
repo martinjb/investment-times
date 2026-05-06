@@ -1,0 +1,66 @@
+<section class="dashboard">
+
+  <!-- MARKET INDICATORS -->
+  <div class="market-strip">
+    <div class="strip-label">
+      <span class="strip-num">01</span>
+      <span class="strip-text">MARKETS&nbsp;TODAY</span>
+    </div>
+    <div class="indicators">
+      <div *ngFor="let ind of indicators; let i = index"
+           class="indicator"
+           [style.animation-delay.ms]="i * 80">
+        <div class="ind-name">{{ ind.name }}</div>
+        <div class="ind-symbol">{{ ind.symbol }}</div>
+        <div class="ind-price">{{ ind.price | number:'1.2-2' }}</div>
+        <div class="ind-change" [class.gain]="ind.changePercent24h >= 0"
+                                [class.loss]="ind.changePercent24h < 0">
+          <span class="arrow">{{ ind.changePercent24h >= 0 ? '▲' : '▼' }}</span>
+          {{ ind.changePercent24h | number:'1.2-2' }}%
+        </div>
+      </div>
+      <div *ngIf="loading" class="loading">Loading market data&hellip;</div>
+    </div>
+  </div>
+
+  <!-- PORTFOLIO SUMMARY -->
+  <div class="summary-block" *ngIf="summary">
+    <div class="strip-label">
+      <span class="strip-num">02</span>
+      <span class="strip-text">YOUR&nbsp;PORTFOLIO</span>
+    </div>
+
+    <div class="summary-grid">
+      <div class="summary-card hero">
+        <div class="card-label">Market Value</div>
+        <div class="card-value">${{ summary.marketValue | number:'1.2-2' }}</div>
+        <div class="card-sub">Across {{ summary.holdingCount }} {{ summary.holdingCount === 1 ? 'holding' : 'holdings' }}</div>
+      </div>
+
+      <div class="summary-card">
+        <div class="card-label">Total Cost Basis</div>
+        <div class="card-value">${{ summary.totalCost | number:'1.2-2' }}</div>
+      </div>
+
+      <div class="summary-card" [class.gain]="summary.unrealizedGain >= 0"
+                                [class.loss]="summary.unrealizedGain < 0">
+        <div class="card-label">Unrealized P/L</div>
+        <div class="card-value">
+          {{ summary.unrealizedGain >= 0 ? '+' : '' }}${{ summary.unrealizedGain | number:'1.2-2' }}
+        </div>
+        <div class="card-sub">
+          {{ summary.unrealizedGainPercent >= 0 ? '+' : '' }}{{ summary.unrealizedGainPercent | number:'1.2-2' }}%
+        </div>
+      </div>
+
+      <div class="summary-card" [class.gain]="summary.realizedGain >= 0"
+                                [class.loss]="summary.realizedGain < 0">
+        <div class="card-label">Realized Gain</div>
+        <div class="card-value">
+          {{ summary.realizedGain >= 0 ? '+' : '' }}${{ summary.realizedGain | number:'1.2-2' }}
+        </div>
+        <div class="card-sub">From completed sells</div>
+      </div>
+    </div>
+  </div>
+</section>

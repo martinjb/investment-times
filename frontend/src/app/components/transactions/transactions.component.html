@@ -1,0 +1,102 @@
+<section class="tx-section">
+
+  <div class="tx-grid">
+    <!-- FORM -->
+    <div class="form-block">
+      <div class="block-header">
+        <span class="strip-num">03</span>
+        <span class="strip-text">RECORD&nbsp;A&nbsp;TRANSACTION</span>
+      </div>
+
+      <form (ngSubmit)="submit()" class="tx-form">
+        <!-- Buy / Sell toggle -->
+        <div class="toggle-group">
+          <button type="button" class="toggle"
+                  [class.active]="form.type === TransactionType.Buy"
+                  (click)="form.type = TransactionType.Buy">Buy</button>
+          <button type="button" class="toggle"
+                  [class.active]="form.type === TransactionType.Sell"
+                  (click)="form.type = TransactionType.Sell">Sell</button>
+        </div>
+
+        <!-- Stock / Crypto toggle -->
+        <div class="toggle-group small">
+          <button type="button" class="toggle"
+                  [class.active]="form.assetType === AssetType.Stock"
+                  (click)="form.assetType = AssetType.Stock">Stock</button>
+          <button type="button" class="toggle"
+                  [class.active]="form.assetType === AssetType.Crypto"
+                  (click)="form.assetType = AssetType.Crypto">Crypto</button>
+        </div>
+
+        <label class="field">
+          <span class="field-label">
+            {{ form.assetType === AssetType.Stock ? 'Ticker' : 'Coin ID' }}
+          </span>
+          <input type="text" name="symbol" [(ngModel)]="form.symbol"
+                 [placeholder]="form.assetType === AssetType.Stock ? 'e.g. AAPL' : 'e.g. bitcoin'"
+                 autocomplete="off" />
+          <span class="field-hint" *ngIf="form.assetType === AssetType.Crypto">
+            Use the CoinGecko id (lowercase): bitcoin, ethereum, solana&hellip;
+          </span>
+        </label>
+
+        <label class="field">
+          <span class="field-label">Quantity</span>
+          <input type="number" name="quantity" [(ngModel)]="form.quantity"
+                 step="0.0001" min="0" />
+        </label>
+
+        <label class="field">
+          <span class="field-label">Price per unit (USD)</span>
+          <input type="number" name="price" [(ngModel)]="form.pricePerUnit"
+                 step="0.01" min="0" />
+        </label>
+
+        <button type="submit" class="submit-btn">
+          Record {{ form.type === TransactionType.Buy ? 'Buy' : 'Sell' }}
+          <span class="arrow-r">→</span>
+        </button>
+
+        <div class="form-msg error" *ngIf="errorMessage">{{ errorMessage }}</div>
+        <div class="form-msg success" *ngIf="successMessage">{{ successMessage }}</div>
+      </form>
+    </div>
+
+    <!-- LEDGER -->
+    <div class="ledger-block">
+      <div class="block-header">
+        <span class="strip-num">04</span>
+        <span class="strip-text">RECENT&nbsp;ACTIVITY</span>
+      </div>
+
+      <div class="ledger" *ngIf="transactions.length > 0">
+        <div class="ledger-row header">
+          <div>Date</div>
+          <div>Type</div>
+          <div>Asset</div>
+          <div>Qty</div>
+          <div>Price</div>
+          <div></div>
+        </div>
+        <div class="ledger-row" *ngFor="let t of transactions">
+          <div class="cell-date">{{ t.date | date:'MMM d, y' }}</div>
+          <div class="cell-type" [class.gain]="t.type === 0" [class.loss]="t.type === 1">
+            {{ typeLabel(t.type) }}
+          </div>
+          <div class="cell-asset">
+            <span class="asset-symbol">{{ t.symbol | uppercase }}</span>
+            <span class="asset-tag">{{ assetLabel(t.assetType) }}</span>
+          </div>
+          <div class="cell-num">{{ t.quantity | number:'1.0-6' }}</div>
+          <div class="cell-num">${{ t.pricePerUnit | number:'1.2-2' }}</div>
+          <button class="del-btn" (click)="delete(t.id)" title="Delete">×</button>
+        </div>
+      </div>
+
+      <div class="empty" *ngIf="transactions.length === 0">
+        No transactions yet. Use the form to record your first buy.
+      </div>
+    </div>
+  </div>
+</section>
