@@ -63,4 +63,26 @@
       </div>
     </div>
   </div>
+
+  <!-- PRICE TRACKERS -->
+  <div class="trackers-section">
+    <div class="strip-label">
+      <span class="strip-num">03</span>
+      <span class="strip-text">COMMODITY&nbsp;PRICES</span>
+    </div>
+    <div class="trackers-grid">
+      <div *ngFor="let tracker of trackers; let i = index"
+          class="tracker-card"
+          [style.animation-delay.ms]="i * 80">
+        <div class="tracker-name">{{ tracker.name }}</div>
+        <div class="tracker-symbol">{{ tracker.symbol }}</div>
+        <div class="tracker-price">${{ tracker.price | number:'1.2-2' }}</div>
+        <div class="tracker-change" [class.gain]="tracker.changePercent24h >= 0"
+                                    [class.loss]="tracker.changePercent24h < 0">
+          <span class="arrow">{{ tracker.changePercent24h >= 0 ? '▲' : '▼' }}</span>
+          {{ tracker.changePercent24h | number:'1.2-2' }}%
+        </div>
+      </div>
+    </div>
+  </div>
 </section>

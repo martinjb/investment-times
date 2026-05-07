@@ -5,7 +5,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Subscription } from 'rxjs';
 import { ApiService } from '../../services/api.service';
-import { MarketIndicator, PortfolioSummary } from '../../models/models';
+import { MarketIndicator, PortfolioSummary, PriceTracker } from '../../models/models';
 
 @Component({
   selector: 'app-dashboard',
@@ -18,6 +18,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   indicators: MarketIndicator[] = [];
   summary: PortfolioSummary | null = null;
   loading = true;
+  trackers: PriceTracker[] = [];
   private sub?: Subscription;
 
   constructor(private api: ApiService) {}
@@ -33,13 +34,16 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.sub?.unsubscribe();
   }
 
-  private loadAll() {
-    this.api.getIndicators().subscribe({
-      next: data => { this.indicators = data; this.loading = false; },
-      error: () => { this.loading = false; }
-    });
-    this.loadSummary();
-  }
+private loadAll() {
+  this.api.getIndicators().subscribe({
+    next: data => { this.indicators = data; this.loading = false; },
+    error: () => { this.loading = false; }
+  });
+  this.api.getPriceTrackers().subscribe({
+    next: data => { this.trackers = data; }
+  });
+  this.loadSummary();
+}
 
   private loadSummary() {
     this.api.getSummary().subscribe({ next: s => this.summary = s });

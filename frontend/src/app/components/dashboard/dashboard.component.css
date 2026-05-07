@@ -153,3 +153,62 @@
 @media (max-width: 540px) {
   .indicators, .summary-grid { grid-template-columns: 1fr; }
 }
+
+/* ============ PRICE TRACKERS ============ */
+.trackers-section {
+  margin-top: 24px;
+}
+
+.trackers-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  border-left: 1px solid var(--rule-strong);
+}
+
+.tracker-card {
+  padding: 24px 28px;
+  border-right: 1px solid var(--rule-strong);
+  border-bottom: 1px solid var(--rule-strong);
+  border-top: 1px solid var(--rule-strong);
+  background: var(--paper);
+  transition: background 0.3s ease;
+  animation: rise 0.6s ease backwards;
+}
+
+.tracker-card:hover {
+  background: var(--paper-deep);
+}
+
+.tracker-name {
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: 22px;
+  font-variation-settings: "opsz" 144;
+  letter-spacing: -0.01em;
+  margin-bottom: 2px;
+}
+
+.tracker-symbol {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: var(--ink-soft);
+  margin-bottom: 18px;
+}
+
+.tracker-price {
+  font-family: var(--mono);
+  font-size: 28px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  margin-bottom: 6px;
+}
+
+.tracker-change {
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
