@@ -14,7 +14,7 @@ import { Observable, BehaviorSubject } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import {
   Transaction, CreateTransaction, Holding, PortfolioSummary,
-  MarketIndicator, NewsItem, PriceTracker
+  MarketIndicator, NewsItem
 } from '../models/models';
 
 @Injectable({ providedIn: 'root' })
@@ -47,8 +47,8 @@ export class ApiService {
     return this.http.get<Transaction[]>(`${this.baseUrl}/portfolio/transactions`);
   }
 
-  getPriceTrackers(): Observable<PriceTracker[]> {
-    return this.http.get<PriceTracker[]>(`/api/price-trackers`);
+  getPriceTrackers(): Observable<MarketIndicator[]> {
+    return this.http.get<MarketIndicator[]>(`${this.baseUrl}/market/trackers`);
   }
 
   addTransaction(tx: CreateTransaction): Observable<Transaction> {

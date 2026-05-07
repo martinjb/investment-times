@@ -18,13 +18,6 @@ export interface Transaction {
   date: string;
 }
 
-export interface PriceTracker {
-  name: string;        // e.g., "Gold"
-  symbol: string;      // e.g., "XAU" or "GOLD"
-  price: number;       // current price
-  changePercent24h: number;  // % change in 24h
-}
-
 export interface CreateTransaction {
   symbol: string;
   assetType: AssetType;

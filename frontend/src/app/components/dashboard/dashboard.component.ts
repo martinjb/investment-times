@@ -5,7 +5,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Subscription } from 'rxjs';
 import { ApiService } from '../../services/api.service';
-import { MarketIndicator, PortfolioSummary, PriceTracker } from '../../models/models';
+import { MarketIndicator, PortfolioSummary } from '../../models/models';
 
 @Component({
   selector: 'app-dashboard',
@@ -18,7 +18,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   indicators: MarketIndicator[] = [];
   summary: PortfolioSummary | null = null;
   loading = true;
-  trackers: PriceTracker[] = [];
+  trackers: MarketIndicator[] = [];
   private sub?: Subscription;
 
   constructor(private api: ApiService) {}

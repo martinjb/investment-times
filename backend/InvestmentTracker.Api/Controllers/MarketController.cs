@@ -25,4 +25,12 @@ public class MarketController : ControllerBase
         var data = await _market.GetLandingIndicatorsAsync();
         return Ok(data);
     }
+
+    // GET /api/market/trackers
+    [HttpGet("trackers")]
+    public async Task<IActionResult> GetTrackers()
+    {
+        var data = await _market.GetPriceTrackersAsync();
+        return Ok(data);
+    }
 }
