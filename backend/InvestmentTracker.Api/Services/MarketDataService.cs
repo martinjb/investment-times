@@ -18,6 +18,7 @@ namespace InvestmentTracker.Api.Services;
 public interface IMarketDataService
 {
     Task<List<MarketIndicatorDto>> GetLandingIndicatorsAsync();
+    Task<List<MarketIndicatorDto>> GetPriceTrackersAsync();
     Task<decimal> GetPriceAsync(string symbol, AssetType assetType);
     Task<Dictionary<string, decimal>> GetPricesAsync(IEnumerable<(string Symbol, AssetType Type)> assets);
 }
@@ -70,6 +71,30 @@ public class MarketDataService : IMarketDataService
             catch (Exception ex) { _logger.LogWarning(ex, "Yahoo fetch failed for {Ticker}", ticker); }
         }
 
+        return results;
+    }
+
+    // Commodity price trackers: Gold, Silver, Natural Gas, Copper.
+    public async Task<List<MarketIndicatorDto>> GetPriceTrackersAsync()
+    {
+        var commodities = new[]
+        {
+            ("Gold",         "GC=F"),
+            ("Silver",       "SI=F"),
+            ("Natural Gas",  "NG=F"),
+            ("Copper",       "HG=F")
+        };
+
+        var results = new List<MarketIndicatorDto>();
+        foreach (var (name, ticker) in commodities)
+        {
+            try
+            {
+                var quote = await GetYahooQuoteAsync(ticker);
+                results.Add(new MarketIndicatorDto(name, ticker, quote.Price, quote.ChangePct));
+            }
+            catch (Exception ex) { _logger.LogWarning(ex, "Commodity fetch failed for {Ticker}", ticker); }
+        }
         return results;
     }
 
