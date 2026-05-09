@@ -1,15 +1,17 @@
 <section class="dashboard">
 
-  <!-- MARKET INDICATORS -->
-  <div class="market-strip">
+  <!-- MARKET GROUPS (indexes, crypto, commodities) -->
+  <div *ngIf="loading" class="loading">Loading market data&hellip;</div>
+
+  <div *ngFor="let group of groups; let gi = index" class="market-group">
     <div class="strip-label">
-      <span class="strip-num">01</span>
-      <span class="strip-text">MARKETS&nbsp;TODAY</span>
+      <span class="strip-num">{{ (gi + 1).toString().padStart(2, '0') }}</span>
+      <span class="strip-text">{{ group.label | uppercase }}</span>
     </div>
     <div class="indicators">
-      <div *ngFor="let ind of indicators; let i = index"
+      <div *ngFor="let ind of group.items; let i = index"
            class="indicator"
-           [style.animation-delay.ms]="i * 80">
+           [style.animation-delay.ms]="(gi * 4 + i) * 80">
         <div class="ind-name">{{ ind.name }}</div>
         <div class="ind-symbol">{{ ind.symbol }}</div>
         <div class="ind-price">{{ ind.price | number:'1.2-2' }}</div>
@@ -19,14 +21,13 @@
           {{ ind.changePercent24h | number:'1.2-2' }}%
         </div>
       </div>
-      <div *ngIf="loading" class="loading">Loading market data&hellip;</div>
     </div>
   </div>
 
   <!-- PORTFOLIO SUMMARY -->
   <div class="summary-block" *ngIf="summary">
     <div class="strip-label">
-      <span class="strip-num">02</span>
+      <span class="strip-num">04</span>
       <span class="strip-text">YOUR&nbsp;PORTFOLIO</span>
     </div>
 
@@ -64,25 +65,4 @@
     </div>
   </div>
 
-  <!-- PRICE TRACKERS -->
-  <div class="trackers-section">
-    <div class="strip-label">
-      <span class="strip-num">03</span>
-      <span class="strip-text">COMMODITY&nbsp;PRICES</span>
-    </div>
-    <div class="trackers-grid">
-      <div *ngFor="let tracker of trackers; let i = index"
-          class="tracker-card"
-          [style.animation-delay.ms]="i * 80">
-        <div class="tracker-name">{{ tracker.name }}</div>
-        <div class="tracker-symbol">{{ tracker.symbol }}</div>
-        <div class="tracker-price">${{ tracker.price | number:'1.2-2' }}</div>
-        <div class="tracker-change" [class.gain]="tracker.changePercent24h >= 0"
-                                    [class.loss]="tracker.changePercent24h < 0">
-          <span class="arrow">{{ tracker.changePercent24h >= 0 ? '▲' : '▼' }}</span>
-          {{ tracker.changePercent24h | number:'1.2-2' }}%
-        </div>
-      </div>
-    </div>
-  </div>
 </section>
