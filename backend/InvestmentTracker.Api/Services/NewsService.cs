@@ -24,16 +24,12 @@ public class NewsService : INewsService
 
     // RSS/Atom feeds in display order (top-left, top-right, bottom-left, bottom-right).
     // If any URL changes, only this list needs updating.
-    //
-    // AP News:     direct feed from apnews.com (rsshub mirror was unreliable)
-    // Reuters:     Reuters Agency feed — reuters.com killed public RSS in 2020;
-    //              reutersagency.com still publishes an official WordPress RSS feed
     private static readonly (string Source, string Url)[] Feeds =
     {
-        ("Financial Times", "https://www.ft.com/rss/home"),
-        ("BBC News",        "https://feeds.bbci.co.uk/news/world/rss.xml"),
         ("Yahoo Finance",   "https://finance.yahoo.com/news/rssindex"),
-        ("MarketWatch",     "https://feeds.marketwatch.com/marketwatch/topstories/")
+        ("Seeking Alpha",   "https://seekingalpha.com/tag/wall-st-breakfast.xml"),
+        ("BBC News",        "https://feeds.bbci.co.uk/news/world/rss.xml"),
+        ("Financial Times", "https://www.ft.com/rss/home")
     };
 
     // Atom namespace — needed to find <link> elements in Atom feeds
@@ -50,13 +46,18 @@ public class NewsService : INewsService
     {
         var items = new List<NewsItemDto>();
 
-        foreach (var (source, url) in Feeds)
+        for (var i = 0; i < Feeds.Length; i++)
         {
+            var (source, url) = Feeds[i];
             try
             {
                 var xml = await _http.GetStringAsync(url);
                 var doc = XDocument.Parse(xml);
-                items.AddRange(ParseFeed(doc, source));
+                // Sort each feed's articles newest-first, then append in feed order.
+                // This keeps the source columns in the order defined by Feeds[].
+                var feedItems = ParseFeed(doc, source)
+                    .OrderByDescending(n => n.PublishedAt ?? DateTime.MinValue);
+                items.AddRange(feedItems);
             }
             catch (Exception ex)
             {
@@ -64,8 +65,8 @@ public class NewsService : INewsService
             }
         }
 
-        // Newest first, with feeds that have no publish date going to the end.
-        return items.OrderByDescending(n => n.PublishedAt ?? DateTime.MinValue).ToList();
+        return items;
     }
 
-    // Parses both RSS 2.0 (<item>) an
+    // Parses both RSS 2.0 (<item>) and Atom 1.0 (<entry>) feeds.
+    private static IEnumerable<NewsItemDto
