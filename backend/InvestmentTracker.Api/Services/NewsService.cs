@@ -1,9 +1,11 @@
 // Services/NewsService.cs
-// Pulls headlines from public RSS feeds (FT and AP).
+// Pulls headlines from public RSS/Atom feeds.
 //
-// RSS is a simple XML format. We use System.Xml.Linq (XDocument) to parse it - it's built into .NET.
+// RSS 2.0 uses <item> / <link> / <pubDate>.
+// Atom 1.0 uses <entry> / <link href="..."> / <published> or <updated>.
+// We handle both so we're not tied to a single feed format.
 //
-// We're not "scraping" anything; RSS is the publishers' explicitly-published headline feed.
+// We're not "scraping" anything; RSS/Atom are the publishers' explicitly-published headline feeds.
 
 using System.Xml.Linq;
 using InvestmentTracker.Api.Models;
@@ -20,15 +22,22 @@ public class NewsService : INewsService
     private readonly HttpClient _http;
     private readonly ILogger<NewsService> _logger;
 
-    // RSS feeds in display order (top-left, top-right, bottom-left, bottom-right).
+    // RSS/Atom feeds in display order (top-left, top-right, bottom-left, bottom-right).
     // If any URL changes, only this list needs updating.
+    //
+    // AP News:     direct feed from apnews.com (rsshub mirror was unreliable)
+    // Reuters:     Reuters Agency feed — reuters.com killed public RSS in 2020;
+    //              reutersagency.com still publishes an official WordPress RSS feed
     private static readonly (string Source, string Url)[] Feeds =
     {
         ("Financial Times", "https://www.ft.com/rss/home"),
-        ("AP News",         "https://rsshub.app/apnews/topics/apf-topnews"),
+        ("AP News",         "https://apnews.com/index.rss"),
         ("Yahoo Finance",   "https://finance.yahoo.com/news/rssindex"),
-        ("Reuters",         "https://rsshub.app/reuters/world")
+        ("Reuters",         "https://www.reutersagency.com/feed/?taxonomy=best-regions&post_type=best")
     };
+
+    // Atom namespace — needed to find <link> elements in Atom feeds
+    private static readonly XNamespace Atom = "http://www.w3.org/2005/Atom";
 
     public NewsService(IHttpClientFactory httpFactory, ILogger<NewsService> logger)
     {
@@ -47,22 +56,7 @@ public class NewsService : INewsService
             {
                 var xml = await _http.GetStringAsync(url);
                 var doc = XDocument.Parse(xml);
-
-                // Standard RSS 2.0 path: rss > channel > item
-                var feedItems = doc.Descendants("item").Take(8);
-
-                foreach (var item in feedItems)
-                {
-                    var title = item.Element("title")?.Value ?? "";
-                    var link = item.Element("link")?.Value ?? "";
-                    var pubDateStr = item.Element("pubDate")?.Value;
-
-                    DateTime? pubDate = null;
-                    if (DateTime.TryParse(pubDateStr, out var d)) pubDate = d.ToUniversalTime();
-
-                    if (!string.IsNullOrWhiteSpace(title) && !string.IsNullOrWhiteSpace(link))
-                        items.Add(new NewsItemDto(title.Trim(), source, link.Trim(), pubDate));
-                }
+                items.AddRange(ParseFeed(doc, source));
             }
             catch (Exception ex)
             {
@@ -70,4 +64,8 @@ public class NewsService : INewsService
             }
         }
 
-        // Newest first
+        // Newest first, with feeds that have no publish date going to the end.
+        return items.OrderByDescending(n => n.PublishedAt ?? DateTime.MinValue).ToList();
+    }
+
+    // Parses both RSS 2.0 (<item>
