@@ -30,12 +30,7 @@
 }
 
 .news-col { padding: 28px 32px; }
-
-/* Right-column cells get a left border */
-.news-col.right-col { border-left: 1px solid var(--rule-strong); }
-
-/* Bottom-row cells get a top border */
-.news-col.bottom-row { border-top: 1px solid var(--rule-strong); }
+.news-col:first-child { border-right: 1px solid var(--rule-strong); }
 
 .col-masthead {
   display: flex;
@@ -115,4 +110,9 @@
 }
 
 @media (max-width: 900px) {
- 
+  .news-grid { grid-template-columns: 1fr; }
+  .news-col:first-child {
+    border-right: none;
+    border-bottom: 1px solid var(--rule-strong);
+  }
+}

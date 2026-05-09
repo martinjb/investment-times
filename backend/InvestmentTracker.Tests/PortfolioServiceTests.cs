@@ -12,7 +12,6 @@ using FluentAssertions;
 using InvestmentTracker.Api.Models;
 using InvestmentTracker.Api.Services;
 using Moq;
-using Xunit;
 
 namespace InvestmentTracker.Tests;
 
@@ -338,4 +337,6 @@ public class PortfolioServiceTests
             Quantity = quantity,
             PricePerUnit = price,
             Date = DateTime.UtcNow.AddDays(-daysAgo)
-      
+        };
+    }
+}

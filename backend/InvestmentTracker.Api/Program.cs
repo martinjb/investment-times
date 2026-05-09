@@ -4,7 +4,6 @@
 // Everything in this file runs ONCE at startup to wire up the application.
 
 using InvestmentTracker.Api.Data;
-using InvestmentTracker.Api.Models;
 using InvestmentTracker.Api.Services;
 using Microsoft.EntityFrameworkCore;
 
@@ -54,6 +53,16 @@ using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     db.Database.EnsureCreated();
+}
 
-    // Seed demo transactions so the Holdings, Portfolio and Transactions sections
-    // are populated on first run. Only runs once — skip
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+
+app.UseCors("AllowAngular");
+app.UseAuthorization();
+app.MapControllers();
+
+app.Run();

@@ -54,8 +54,8 @@
 
 .ind-name {
   font-family: var(--serif);
-  font-weight: 700;
-  font-size: 26px;
+  font-weight: 500;
+  font-size: 22px;
   font-variation-settings: "opsz" 144;
   letter-spacing: -0.01em;
   margin-bottom: 2px;
