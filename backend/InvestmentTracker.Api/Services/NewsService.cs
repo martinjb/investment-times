@@ -20,12 +20,14 @@ public class NewsService : INewsService
     private readonly HttpClient _http;
     private readonly ILogger<NewsService> _logger;
 
-    // FT's free "home" RSS feed and AP News' top stories RSS.
-    // If either changes URL, only this list needs updating.
+    // RSS feeds in display order (top-left, top-right, bottom-left, bottom-right).
+    // If any URL changes, only this list needs updating.
     private static readonly (string Source, string Url)[] Feeds =
     {
         ("Financial Times", "https://www.ft.com/rss/home"),
-        ("AP News",         "https://rsshub.app/apnews/topics/apf-topnews")
+        ("AP News",         "https://rsshub.app/apnews/topics/apf-topnews"),
+        ("Yahoo Finance",   "https://finance.yahoo.com/news/rssindex"),
+        ("Reuters",         "https://rsshub.app/reuters/world")
     };
 
     public NewsService(IHttpClientFactory httpFactory, ILogger<NewsService> logger)
@@ -68,7 +70,4 @@ public class NewsService : INewsService
             }
         }
 
-        // Newest first, with feeds that have no publish date going to the end.
-        return items.OrderByDescending(n => n.PublishedAt ?? DateTime.MinValue).ToList();
-    }
-}
+        // Newest first
