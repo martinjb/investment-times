@@ -54,6 +54,11 @@ export interface MarketIndicator {
   changePercent24h: number;
 }
 
+export interface MarketGroup {
+  label: string;
+  items: MarketIndicator[];
+}
+
 export interface NewsItem {
   title: string;
   source: string;

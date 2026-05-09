@@ -33,4 +33,12 @@ public class MarketController : ControllerBase
         var data = await _market.GetPriceTrackersAsync();
         return Ok(data);
     }
+
+    // GET /api/market/groups — returns all three groups (indexes, crypto, commodities) for the grouped dashboard view.
+    [HttpGet("groups")]
+    public async Task<IActionResult> GetGroups()
+    {
+        var data = await _market.GetMarketGroupsAsync();
+        return Ok(data);
+    }
 }

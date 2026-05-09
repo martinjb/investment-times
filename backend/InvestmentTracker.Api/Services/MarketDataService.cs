@@ -19,6 +19,7 @@ public interface IMarketDataService
 {
     Task<List<MarketIndicatorDto>> GetLandingIndicatorsAsync();
     Task<List<MarketIndicatorDto>> GetPriceTrackersAsync();
+    Task<List<MarketGroupDto>> GetMarketGroupsAsync();
     Task<decimal> GetPriceAsync(string symbol, AssetType assetType);
     Task<Dictionary<string, decimal>> GetPricesAsync(IEnumerable<(string Symbol, AssetType Type)> assets);
 }
@@ -96,6 +97,74 @@ public class MarketDataService : IMarketDataService
             catch (Exception ex) { _logger.LogWarning(ex, "Commodity fetch failed for {Ticker}", ticker); }
         }
         return results;
+    }
+
+    // Returns all three market groups (indexes, crypto, commodities) for the grouped dashboard view.
+    public async Task<List<MarketGroupDto>> GetMarketGroupsAsync()
+    {
+        var groups = new List<MarketGroupDto>();
+
+        // --- Market Indexes ---
+        var indexTickers = new[]
+        {
+            ("S&P 500",            "^GSPC"),
+            ("Dow Jones",          "^DJI"),
+            ("Nasdaq Composite",   "^IXIC"),
+            ("Nasdaq 100",         "^NDX")
+        };
+        var indexItems = new List<MarketIndicatorDto>();
+        foreach (var (name, ticker) in indexTickers)
+        {
+            try
+            {
+                var q = await GetYahooQuoteAsync(ticker);
+                indexItems.Add(new MarketIndicatorDto(name, ticker, q.Price, q.ChangePct));
+            }
+            catch (Exception ex) { _logger.LogWarning(ex, "Index fetch failed for {Ticker}", ticker); }
+        }
+        groups.Add(new MarketGroupDto("Market Indexes", indexItems));
+
+        // --- Crypto ---
+        var cryptoCoins = new[]
+        {
+            ("Bitcoin",   "bitcoin"),
+            ("Ethereum",  "ethereum"),
+            ("Tether",    "tether"),
+            ("BNB",       "binancecoin")
+        };
+        var cryptoItems = new List<MarketIndicatorDto>();
+        foreach (var (name, id) in cryptoCoins)
+        {
+            try
+            {
+                var q = await GetCryptoQuoteAsync(id);
+                cryptoItems.Add(new MarketIndicatorDto(name, id.ToUpper(), q.Price, q.ChangePct));
+            }
+            catch (Exception ex) { _logger.LogWarning(ex, "Crypto fetch failed for {Id}", id); }
+        }
+        groups.Add(new MarketGroupDto("Crypto", cryptoItems));
+
+        // --- Commodities ---
+        var commodityTickers = new[]
+        {
+            ("Brent Crude",           "BZ=F"),
+            ("West Texas Interm.",    "CL=F"),
+            ("Gold",                  "GC=F"),
+            ("Natural Gas",           "NG=F")
+        };
+        var commodityItems = new List<MarketIndicatorDto>();
+        foreach (var (name, ticker) in commodityTickers)
+        {
+            try
+            {
+                var q = await GetYahooQuoteAsync(ticker);
+                commodityItems.Add(new MarketIndicatorDto(name, ticker, q.Price, q.ChangePct));
+            }
+            catch (Exception ex) { _logger.LogWarning(ex, "Commodity fetch failed for {Ticker}", ticker); }
+        }
+        groups.Add(new MarketGroupDto("Commodities", commodityItems));
+
+        return groups;
     }
 
     public async Task<decimal> GetPriceAsync(string symbol, AssetType assetType)

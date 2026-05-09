@@ -52,6 +52,9 @@ public record MarketIndicatorDto(
     decimal ChangePercent24h
 );
 
+// A labelled group of market indicators (e.g. "Market Indexes", "Crypto", "Commodities").
+public record MarketGroupDto(string Label, List<MarketIndicatorDto> Items);
+
 // A news headline.
 public record NewsItemDto(
     string Title,
