@@ -26,8 +26,7 @@ export class NewsComponent implements OnInit {
     });
   }
 
-  // Group headlines by source for the two-column layout.
-  bySource(source: string): NewsItem[] {
-    return this.news.filter(n => n.source === source);
-  }
-}
+  // Ordered list of sources as they arrive from the API (preserves feed order).
+  get sources(): string[] {
+    const seen = new Set<string>();
+    return this
