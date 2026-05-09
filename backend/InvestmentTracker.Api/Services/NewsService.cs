@@ -31,9 +31,9 @@ public class NewsService : INewsService
     private static readonly (string Source, string Url)[] Feeds =
     {
         ("Financial Times", "https://www.ft.com/rss/home"),
-        ("AP News",         "https://apnews.com/index.rss"),
+        ("BBC News",        "https://feeds.bbci.co.uk/news/world/rss.xml"),
         ("Yahoo Finance",   "https://finance.yahoo.com/news/rssindex"),
-        ("Reuters",         "https://www.reutersagency.com/feed/?taxonomy=best-regions&post_type=best")
+        ("The Guardian",    "https://www.theguardian.com/world/rss")
     };
 
     // Atom namespace — needed to find <link> elements in Atom feeds
@@ -68,4 +68,4 @@ public class NewsService : INewsService
         return items.OrderByDescending(n => n.PublishedAt ?? DateTime.MinValue).ToList();
     }
 
-    // Parses both RSS 2.0 (<item>
+    // Parses both RSS 2.0 (<item>) and Atom 1.0 (<ent
