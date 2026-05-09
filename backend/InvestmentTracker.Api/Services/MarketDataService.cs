@@ -145,6 +145,15 @@ public class MarketDataService : IMarketDataService
             }
         }
         catch (Exception ex) { _logger.LogWarning(ex, "Crypto batch fetch failed"); }
+        foreach (var (name, id) in cryptoCoins)
+        {
+            try
+            {
+                var q = await GetCryptoQuoteAsync(id);
+                cryptoItems.Add(new MarketIndicatorDto(name, id.ToUpper(), q.Price, q.ChangePct));
+            }
+            catch (Exception ex) { _logger.LogWarning(ex, "Crypto fetch failed for {Id}", id); }
+        }
         groups.Add(new MarketGroupDto("Crypto", cryptoItems));
 
         // --- Commodities ---
@@ -214,6 +223,7 @@ public class MarketDataService : IMarketDataService
         // Stocks/indices fetched individually via Yahoo (no batch endpoint).
         var stockAssets = distinct.Where(a => a.Type == AssetType.Stock).ToList();
         foreach (var asset in stockAssets)
+        foreach (var asset in assets.Distinct())
         {
             try
             {
@@ -233,3 +243,27 @@ public class MarketDataService : IMarketDataService
 
     // Fetches a single coin — used by GetPriceAsync for portfolio valuation.
     private async Task<(deci
+    private async Task<(decimal Price, decimal ChangePct)> GetCryptoQuoteAsync(string coinGeckoId)
+    {
+        var url = $"https://api.coingecko.com/api/v3/simple/price?ids={coinGeckoId}&vs_currencies=usd&include_24hr_change=true";
+        var json = await _http.GetStringAsync(url);
+        using var doc = JsonDocument.Parse(json);
+        var root = doc.RootElement.GetProperty(coinGeckoId);
+        var price = root.GetProperty("usd").GetDecimal();
+        var change = root.TryGetProperty("usd_24h_change", out var c) ? c.GetDecimal() : 0m;
+        return (price, change);
+    }
+
+    private async Task<(decimal Price, decimal ChangePct)> GetYahooQuoteAsync(string ticker)
+    {
+        var url = $"https://query1.finance.yahoo.com/v8/finance/chart/{Uri.EscapeDataString(ticker)}?interval=1d&range=2d";
+        var json = await _http.GetStringAsync(url);
+        using var doc = JsonDocument.Parse(json);
+        var meta = doc.RootElement.GetProperty("chart").GetProperty("result")[0].GetProperty("meta");
+        var price = meta.GetProperty("regularMarketPrice").GetDecimal();
+        var prevClose = meta.TryGetProperty("chartPreviousClose", out var pc) ? pc.GetDecimal()
+                       : meta.GetProperty("previousClose").GetDecimal();
+        var changePct = prevClose == 0 ? 0 : (price - prevClose) / prevClose * 100m;
+        return (price, changePct);
+    }
+}
