@@ -352,7 +352,7 @@ Component-level CSS is **scoped automatically by Angular**. You can write `.hold
 1. `DashboardComponent.ngOnInit()` calls `this.api.getIndicators()`.
 2. ASP.NET Core routes to `MarketController.GetIndicators`.
 3. Controller calls `_market.GetLandingIndicatorsAsync()`.
-4. `MarketDataService` fires four parallel HTTP calls — one to CoinGecko for BTC, three to Yahoo Finance for ^GSPC, ^DJI, BZ=F.
+4. `MarketDataService` makes four sequential HTTP calls — one to CoinGecko for BTC, then three to Yahoo Finance for ^GSPC, ^DJI, BZ=F.
 5. Each result is deserialized into a `MarketIndicatorDto`.
 6. The list comes back through the controller as JSON.
 7. The Angular component populates `this.indicators` and the template re-renders.
