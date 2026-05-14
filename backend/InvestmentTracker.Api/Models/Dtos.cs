@@ -44,7 +44,7 @@ public record PortfolioSummaryDto(
     int HoldingCount
 );
 
-// One of the four tickers shown on the landing page.
+// One price indicator — used for both the landing-page tickers and the commodity trackers endpoint.
 public record MarketIndicatorDto(
     string Name,
     string Symbol,

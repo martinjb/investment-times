@@ -338,6 +338,4 @@ public class PortfolioServiceTests
             Quantity = quantity,
             PricePerUnit = price,
             Date = DateTime.UtcNow.AddDays(-daysAgo)
-        };
-    }
-}
+      

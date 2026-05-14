@@ -113,4 +113,6 @@ public class NewsService : INewsService
 
         return results;
     }
-}
+
+    // Parses both RSS 2.0 (<item>) and Atom 1.0 (<entry>) feeds.
+    private static IEnumerable<NewsItemDto

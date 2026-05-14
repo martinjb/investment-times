@@ -95,6 +95,7 @@ The tests use **xUnit** as the runner, **Moq** to stub the external market-data 
 | Method | Route                                  | Description                          |
 |--------|----------------------------------------|--------------------------------------|
 | GET    | `/api/market/indicators`               | BTC, S&P, Dow, Brent live prices     |
+| GET    | `/api/market/trackers`                 | Gold, Silver, Natural Gas, Copper    |
 | GET    | `/api/portfolio/summary`               | Aggregate P/L numbers                |
 | GET    | `/api/portfolio/holdings`              | Per-asset positions with current P/L |
 | GET    | `/api/portfolio/transactions`          | Full ledger                          |

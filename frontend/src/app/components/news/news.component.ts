@@ -38,3 +38,4 @@ export class NewsComponent implements OnInit {
     return this.news.filter(n => n.source === source);
   }
 }
+    return this

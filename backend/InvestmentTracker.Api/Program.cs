@@ -103,14 +103,5 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
-
-app.UseCors("AllowAngular");
-app.UseAuthorization();
-app.MapControllers();
-
-app.Run();
+    // Seed demo transactions so the Holdings, Portfolio and Transactions sections
+    // are populated on first run. Only runs once — skip

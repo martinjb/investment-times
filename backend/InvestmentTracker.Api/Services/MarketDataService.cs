@@ -145,6 +145,15 @@ public class MarketDataService : IMarketDataService
             }
         }
         catch (Exception ex) { _logger.LogWarning(ex, "Crypto batch fetch failed"); }
+        foreach (var (name, id) in cryptoCoins)
+        {
+            try
+            {
+                var q = await GetCryptoQuoteAsync(id);
+                cryptoItems.Add(new MarketIndicatorDto(name, id.ToUpper(), q.Price, q.ChangePct));
+            }
+            catch (Exception ex) { _logger.LogWarning(ex, "Crypto fetch failed for {Id}", id); }
+        }
         groups.Add(new MarketGroupDto("Crypto", cryptoItems));
 
         // --- Commodities ---
@@ -253,6 +262,16 @@ public class MarketDataService : IMarketDataService
             result[prop.Name] = (price, change);
         }
         return result;
+    private async Task<(deci
+    private async Task<(decimal Price, decimal ChangePct)> GetCryptoQuoteAsync(string coinGeckoId)
+    {
+        var url = $"https://api.coingecko.com/api/v3/simple/price?ids={coinGeckoId}&vs_currencies=usd&include_24hr_change=true";
+        var json = await _http.GetStringAsync(url);
+        using var doc = JsonDocument.Parse(json);
+        var root = doc.RootElement.GetProperty(coinGeckoId);
+        var price = root.GetProperty("usd").GetDecimal();
+        var change = root.TryGetProperty("usd_24h_change", out var c) ? c.GetDecimal() : 0m;
+        return (price, change);
     }
 
     private async Task<(decimal Price, decimal ChangePct)> GetYahooQuoteAsync(string ticker)
