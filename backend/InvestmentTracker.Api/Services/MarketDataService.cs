@@ -125,6 +125,7 @@ public class MarketDataService : IMarketDataService
         groups.Add(new MarketGroupDto("Market Indexes", indexItems));
 
         // --- Crypto ---
+        // All four coins in a single CoinGecko request to avoid free-tier rate limits.
         var cryptoCoins = new[]
         {
             ("Bitcoin",   "bitcoin"),
@@ -133,15 +134,17 @@ public class MarketDataService : IMarketDataService
             ("BNB",       "binancecoin")
         };
         var cryptoItems = new List<MarketIndicatorDto>();
-        foreach (var (name, id) in cryptoCoins)
+        try
         {
-            try
+            var ids = string.Join(",", cryptoCoins.Select(c => c.Item2));
+            var batch = await GetCryptoBatchAsync(ids);
+            foreach (var (name, id) in cryptoCoins)
             {
-                var q = await GetCryptoQuoteAsync(id);
-                cryptoItems.Add(new MarketIndicatorDto(name, id.ToUpper(), q.Price, q.ChangePct));
+                if (batch.TryGetValue(id, out var q))
+                    cryptoItems.Add(new MarketIndicatorDto(name, id.ToUpper(), q.Price, q.ChangePct));
             }
-            catch (Exception ex) { _logger.LogWarning(ex, "Crypto fetch failed for {Id}", id); }
         }
+        catch (Exception ex) { _logger.LogWarning(ex, "Crypto batch fetch failed"); }
         groups.Add(new MarketGroupDto("Crypto", cryptoItems));
 
         // --- Commodities ---
@@ -186,7 +189,31 @@ public class MarketDataService : IMarketDataService
     public async Task<Dictionary<string, decimal>> GetPricesAsync(IEnumerable<(string Symbol, AssetType Type)> assets)
     {
         var result = new Dictionary<string, decimal>();
-        foreach (var asset in assets.Distinct())
+        var distinct = assets.Distinct().ToList();
+
+        // Batch all crypto into a single CoinGecko request to avoid rate limits.
+        var cryptoAssets = distinct.Where(a => a.Type == AssetType.Crypto).ToList();
+        if (cryptoAssets.Any())
+        {
+            try
+            {
+                var ids = string.Join(",", cryptoAssets.Select(a => a.Symbol));
+                var batch = await GetCryptoBatchAsync(ids);
+                foreach (var asset in cryptoAssets)
+                    result[$"{asset.Type}:{asset.Symbol}"] =
+                        batch.TryGetValue(asset.Symbol, out var q) ? q.Price : 0m;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Crypto batch price fetch failed");
+                foreach (var asset in cryptoAssets)
+                    result[$"{asset.Type}:{asset.Symbol}"] = 0m;
+            }
+        }
+
+        // Stocks/indices fetched individually via Yahoo (no batch endpoint).
+        var stockAssets = distinct.Where(a => a.Type == AssetType.Stock).ToList();
+        foreach (var asset in stockAssets)
         {
             try
             {
@@ -198,20 +225,34 @@ public class MarketDataService : IMarketDataService
                 result[$"{asset.Type}:{asset.Symbol}"] = 0m;
             }
         }
+
         return result;
     }
 
     // ---- Private helpers ----
 
+    // Fetches a single coin — used by GetPriceAsync for portfolio valuation.
     private async Task<(decimal Price, decimal ChangePct)> GetCryptoQuoteAsync(string coinGeckoId)
     {
-        var url = $"https://api.coingecko.com/api/v3/simple/price?ids={coinGeckoId}&vs_currencies=usd&include_24hr_change=true";
+        var batch = await GetCryptoBatchAsync(coinGeckoId);
+        return batch.TryGetValue(coinGeckoId, out var q) ? q : (0m, 0m);
+    }
+
+    // Fetches multiple coins in one request — comma-separated CoinGecko IDs.
+    // One call instead of N avoids hitting the free-tier rate limit.
+    private async Task<Dictionary<string, (decimal Price, decimal ChangePct)>> GetCryptoBatchAsync(string commaSeparatedIds)
+    {
+        var url = $"https://api.coingecko.com/api/v3/simple/price?ids={commaSeparatedIds}&vs_currencies=usd&include_24hr_change=true";
         var json = await _http.GetStringAsync(url);
         using var doc = JsonDocument.Parse(json);
-        var root = doc.RootElement.GetProperty(coinGeckoId);
-        var price = root.GetProperty("usd").GetDecimal();
-        var change = root.TryGetProperty("usd_24h_change", out var c) ? c.GetDecimal() : 0m;
-        return (price, change);
+        var result = new Dictionary<string, (decimal Price, decimal ChangePct)>();
+        foreach (var prop in doc.RootElement.EnumerateObject())
+        {
+            var price  = prop.Value.GetProperty("usd").GetDecimal();
+            var change = prop.Value.TryGetProperty("usd_24h_change", out var c) ? c.GetDecimal() : 0m;
+            result[prop.Name] = (price, change);
+        }
+        return result;
     }
 
     private async Task<(decimal Price, decimal ChangePct)> GetYahooQuoteAsync(string ticker)

@@ -12,6 +12,7 @@ using FluentAssertions;
 using InvestmentTracker.Api.Models;
 using InvestmentTracker.Api.Services;
 using Moq;
+using Xunit;
 
 namespace InvestmentTracker.Tests;
 
