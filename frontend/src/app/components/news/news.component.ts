@@ -29,4 +29,13 @@ export class NewsComponent implements OnInit {
   // Ordered list of sources as they arrive from the API (preserves feed order).
   get sources(): string[] {
     const seen = new Set<string>();
+    return this.news
+      .map(n => n.source)
+      .filter(s => { if (seen.has(s)) return false; seen.add(s); return true; });
+  }
+
+  bySource(source: string): NewsItem[] {
+    return this.news.filter(n => n.source === source);
+  }
+}
     return this

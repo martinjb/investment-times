@@ -69,4 +69,50 @@ public class NewsService : INewsService
     }
 
     // Parses both RSS 2.0 (<item>) and Atom 1.0 (<entry>) feeds.
+    private static IEnumerable<NewsItemDto> ParseFeed(XDocument doc, string source)
+    {
+        var results = new List<NewsItemDto>();
+
+        // --- RSS 2.0 ---
+        var rssItems = doc.Descendants("item").Take(8);
+        foreach (var item in rssItems)
+        {
+            var title = item.Element("title")?.Value ?? "";
+            var link  = item.Element("link")?.Value ?? "";
+            var pubDateStr = item.Element("pubDate")?.Value;
+
+            DateTime? pubDate = null;
+            if (DateTime.TryParse(pubDateStr, out var d)) pubDate = d.ToUniversalTime();
+
+            if (!string.IsNullOrWhiteSpace(title) && !string.IsNullOrWhiteSpace(link))
+                results.Add(new NewsItemDto(title.Trim(), source, link.Trim(), pubDate));
+        }
+
+        if (results.Count > 0) return results;
+
+        // --- Atom 1.0 (fallback if no <item> found) ---
+        var atomEntries = doc.Descendants(Atom + "entry").Take(8);
+        foreach (var entry in atomEntries)
+        {
+            var title = entry.Element(Atom + "title")?.Value ?? "";
+
+            // Atom <link> is an element with an href attribute, not text content
+            var link = entry.Elements(Atom + "link")
+                            .FirstOrDefault(l => l.Attribute("rel")?.Value != "enclosure")
+                            ?.Attribute("href")?.Value ?? "";
+
+            var pubDateStr = entry.Element(Atom + "published")?.Value
+                          ?? entry.Element(Atom + "updated")?.Value;
+
+            DateTime? pubDate = null;
+            if (DateTime.TryParse(pubDateStr, out var d)) pubDate = d.ToUniversalTime();
+
+            if (!string.IsNullOrWhiteSpace(title) && !string.IsNullOrWhiteSpace(link))
+                results.Add(new NewsItemDto(title.Trim(), source, link.Trim(), pubDate));
+        }
+
+        return results;
+    }
+
+    // Parses both RSS 2.0 (<item>) and Atom 1.0 (<entry>) feeds.
     private static IEnumerable<NewsItemDto
